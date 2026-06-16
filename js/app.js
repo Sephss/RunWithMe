@@ -25,11 +25,23 @@ async function boot() {
   const user = await initAuth();
 
   // ─── ROUTE DEFINITIONS ──────────────────────────────────────────
-  register("/login",    () => { if (getCurrentUser()) return redirectToDashboard(); renderLogin(); });
-  register("/register", () => { if (getCurrentUser()) return redirectToDashboard(); renderRegister(); });
-  register("/",         () => { if (!getCurrentUser()) return navigate("/login", true); redirectToDashboard(); });
-  register("/dashboard",() => { if (!getCurrentUser()) return navigate("/login", true); redirectToDashboard(); });
-  register("/404",      () => {
+  register("/login", () => {
+    if (getCurrentUser()) return redirectToDashboard();
+    renderLogin();
+  });
+  register("/register", () => {
+    if (getCurrentUser()) return redirectToDashboard();
+    renderRegister();
+  });
+  register("/", () => {
+    if (!getCurrentUser()) return navigate("/login", true);
+    redirectToDashboard();
+  });
+  register("/dashboard", () => {
+    if (!getCurrentUser()) return navigate("/login", true);
+    redirectToDashboard();
+  });
+  register("/404", () => {
     document.getElementById("app").innerHTML = `
       <div class="page-loader">
         <div style="text-align:center">
@@ -43,14 +55,18 @@ async function boot() {
 
   // Listen for auth state changes → redirect accordingly
   import("./auth.js").then(({ onAuth }) => {
-    onAuth(async (user) => {
+    onAuth((user) => {
       const path = window.location.pathname;
+
       if (!user) {
-        if (path !== "/register") navigate("/login", true);
-      } else {
-        if (path === "/login" || path === "/register" || path === "/") {
-          redirectToDashboard();
+        if (path !== "/login" && path !== "/register") {
+          navigate("/login", true);
         }
+        return;
+      }
+
+      if (path === "/login" || path === "/register" || path === "/") {
+        navigate("/dashboard", true);
       }
     });
   });
@@ -62,15 +78,19 @@ async function boot() {
 
 async function redirectToDashboard() {
   const user = getCurrentUser();
-  if (!user) { navigate("/login", true); return; }
+  if (!user) {
+    return;
+  }
 
   // Get user data to check coupling
   const userData = await getUserData(user.uid);
 
   if (!userData?.coupleId) {
-    // Render pairing screen
-    navigate("/dashboard", true);
-    renderPairing(userData || { name: user.displayName || "Runner" });
+    renderPairing(
+      userData || {
+        name: user.displayName || "Runner",
+      },
+    );
     return;
   }
 
@@ -86,7 +106,7 @@ async function redirectToDashboard() {
   }
 
   // All good — load full dashboard
-  navigate("/dashboard", true);
+
   const loaded = await loadAppState();
 
   if (!loaded) {

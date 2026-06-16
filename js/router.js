@@ -7,6 +7,7 @@ export function register(path, handler) {
 }
 
 export function navigate(path, replace = false) {
+  console.log("NAVIGATE:", path);
   if (replace) {
     history.replaceState({}, "", path);
   } else {
