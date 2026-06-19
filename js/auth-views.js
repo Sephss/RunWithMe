@@ -16,7 +16,7 @@ export function renderLogin() {
           <div class="ring ring-1"></div>
           <div class="ring ring-2"></div>
           <div class="ring ring-3"></div>
-          <div class="ring-core">❤️‍🔥</div>
+          <div class="ring-core"></div>
         </div>
         <div class="auth-logo-name text-gradient">RunWithMe</div>
         <p class="auth-tagline">Every Step Together ❤️</p>
@@ -33,7 +33,7 @@ export function renderLogin() {
       <div class="auth-form-wrap">
         <div class="auth-form-header">
           <h2>Welcome back</h2>
-          <p>Don't have an account? <a href="/register" data-link>Sign up</a></p>
+        
         </div>
 
         <div class="form-group">
@@ -65,8 +65,11 @@ function bindLoginEvents() {
   async function attempt() {
     errEl.textContent = "";
     const email = document.getElementById("login-email").value.trim();
-    const pass  = document.getElementById("login-pass").value;
-    if (!email || !pass) { errEl.textContent = "Please fill in all fields."; return; }
+    const pass = document.getElementById("login-pass").value;
+    if (!email || !pass) {
+      errEl.textContent = "Please fill in all fields.";
+      return;
+    }
 
     setButtonLoading(btn, true);
     try {
@@ -142,20 +145,32 @@ export function renderRegister() {
 }
 
 function bindRegisterEvents() {
-  const btn   = document.getElementById("reg-btn");
+  const btn = document.getElementById("reg-btn");
   const errEl = document.getElementById("reg-error");
 
   btn.addEventListener("click", async () => {
     errEl.textContent = "";
-    const name  = document.getElementById("reg-name").value.trim();
+    const name = document.getElementById("reg-name").value.trim();
     const email = document.getElementById("reg-email").value.trim();
-    const pass  = document.getElementById("reg-pass").value;
+    const pass = document.getElementById("reg-pass").value;
     const pass2 = document.getElementById("reg-pass2").value;
 
-    if (!name)  { errEl.textContent = "Enter your name."; return; }
-    if (!email) { errEl.textContent = "Enter a valid email."; return; }
-    if (pass.length < 6) { errEl.textContent = "Password must be at least 6 characters."; return; }
-    if (pass !== pass2)  { errEl.textContent = "Passwords do not match."; return; }
+    if (!name) {
+      errEl.textContent = "Enter your name.";
+      return;
+    }
+    if (!email) {
+      errEl.textContent = "Enter a valid email.";
+      return;
+    }
+    if (pass.length < 6) {
+      errEl.textContent = "Password must be at least 6 characters.";
+      return;
+    }
+    if (pass !== pass2) {
+      errEl.textContent = "Passwords do not match.";
+      return;
+    }
 
     setButtonLoading(btn, true);
     try {
@@ -220,21 +235,29 @@ function bindPairingEvents(userData) {
   // Tabs
   document.querySelectorAll("#pair-tabs .tab").forEach((t) => {
     t.addEventListener("click", () => {
-      document.querySelectorAll("#pair-tabs .tab").forEach((x) => x.classList.remove("active"));
+      document
+        .querySelectorAll("#pair-tabs .tab")
+        .forEach((x) => x.classList.remove("active"));
       t.classList.add("active");
-      document.getElementById("pair-create").classList.toggle("hidden", t.dataset.tab !== "create");
-      document.getElementById("pair-join").classList.toggle("hidden",   t.dataset.tab !== "join");
+      document
+        .getElementById("pair-create")
+        .classList.toggle("hidden", t.dataset.tab !== "create");
+      document
+        .getElementById("pair-join")
+        .classList.toggle("hidden", t.dataset.tab !== "join");
     });
   });
 
   // Create couple
-  document.getElementById("create-couple-btn").addEventListener("click", async (e) => {
-    const btn = e.currentTarget;
-    setButtonLoading(btn, true);
-    try {
-      const user = getCurrentUser();
-      const { coupleId, code } = await createCouple(user.uid, userData.name);
-      document.getElementById("couple-code-result").innerHTML = `
+  document
+    .getElementById("create-couple-btn")
+    .addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      setButtonLoading(btn, true);
+      try {
+        const user = getCurrentUser();
+        const { coupleId, code } = await createCouple(user.uid, userData.name);
+        document.getElementById("couple-code-result").innerHTML = `
         <div style="background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(236,72,153,0.15));border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;text-align:center">
           <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.5rem">Your invite code</p>
           <div style="font-size:2rem;font-weight:900;font-family:'Inter',sans-serif;letter-spacing:0.12em;color:var(--text)">${code}</div>
@@ -243,38 +266,52 @@ function bindPairingEvents(userData) {
         </div>
         <p style="text-align:center;font-size:0.82rem;color:var(--text-muted);margin-top:0.75rem">Waiting for your partner to join…</p>`;
 
-      document.getElementById("copy-code-btn")?.addEventListener("click", () => {
-        navigator.clipboard.writeText(code).then(() => toast("Code copied! 📋", "success"));
-      });
+        document
+          .getElementById("copy-code-btn")
+          ?.addEventListener("click", () => {
+            navigator.clipboard
+              .writeText(code)
+              .then(() => toast("Code copied! 📋", "success"));
+          });
 
-      // Watch for partner to join
-      import("./couple.js").then(({ watchCouple }) => {
-        watchCouple(coupleId, (couple) => {
-          if (couple && Object.keys(couple.members || {}).length >= 2) {
-            toast("Your partner joined! 🎉", "success");
-            setTimeout(() => location.reload(), 1000);
-          }
+        // Watch for partner to join
+        import("./couple.js").then(({ watchCouple }) => {
+          watchCouple(coupleId, (couple) => {
+            if (couple && Object.keys(couple.members || {}).length >= 2) {
+              toast("Your partner joined! 🎉", "success");
+              setTimeout(() => location.reload(), 1000);
+            }
+          });
         });
-      });
-    } catch (e) { toast(e.message, "error"); }
-    setButtonLoading(btn, false);
-  });
+      } catch (e) {
+        toast(e.message, "error");
+      }
+      setButtonLoading(btn, false);
+    });
 
   // Join couple
-  document.getElementById("join-couple-btn").addEventListener("click", async (e) => {
-    const btn = e.currentTarget;
-    const code = document.getElementById("join-code-input").value.trim();
-    const errEl = document.getElementById("join-error");
-    errEl.textContent = "";
-    if (!code) { errEl.textContent = "Enter an invite code."; return; }
-    setButtonLoading(btn, true);
-    try {
-      const user = getCurrentUser();
-      await joinCouple(user.uid, userData.name, code);
-      toast("Joined! Welcome to your couple 💑", "success");
-      setTimeout(() => location.reload(), 800);
-    } catch (e) { errEl.textContent = e.message; setButtonLoading(btn, false); }
-  });
+  document
+    .getElementById("join-couple-btn")
+    .addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      const code = document.getElementById("join-code-input").value.trim();
+      const errEl = document.getElementById("join-error");
+      errEl.textContent = "";
+      if (!code) {
+        errEl.textContent = "Enter an invite code.";
+        return;
+      }
+      setButtonLoading(btn, true);
+      try {
+        const user = getCurrentUser();
+        await joinCouple(user.uid, userData.name, code);
+        toast("Joined! Welcome to your couple 💑", "success");
+        setTimeout(() => location.reload(), 800);
+      } catch (e) {
+        errEl.textContent = e.message;
+        setButtonLoading(btn, false);
+      }
+    });
 
   document.getElementById("pair-logout").addEventListener("click", () => {
     import("./auth.js").then(({ logout }) => logout());
@@ -284,14 +321,14 @@ function bindPairingEvents(userData) {
 // ─── FRIENDLY ERROR MESSAGES ───────────────────────────────────────
 function friendlyAuthError(code) {
   const map = {
-    "auth/user-not-found":      "No account found with this email.",
-    "auth/wrong-password":      "Incorrect password. Please try again.",
-    "auth/email-already-in-use":"This email is already registered.",
-    "auth/invalid-email":       "Please enter a valid email address.",
-    "auth/weak-password":       "Password must be at least 6 characters.",
-    "auth/too-many-requests":   "Too many attempts. Please try again later.",
+    "auth/user-not-found": "No account found with this email.",
+    "auth/wrong-password": "Incorrect password. Please try again.",
+    "auth/email-already-in-use": "This email is already registered.",
+    "auth/invalid-email": "Please enter a valid email address.",
+    "auth/weak-password": "Password must be at least 6 characters.",
+    "auth/too-many-requests": "Too many attempts. Please try again later.",
     "auth/network-request-failed": "Network error. Check your connection.",
-    "auth/invalid-credential":  "Incorrect email or password.",
+    "auth/invalid-credential": "Incorrect email or password.",
   };
   return map[code] || "Something went wrong. Please try again.";
 }
