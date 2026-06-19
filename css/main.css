@@ -158,9 +158,7 @@ p {
   position: relative;
   overflow: hidden;
 }
-.icon {
-  color: white;
-}
+
 .btn::after {
   content: "";
   position: absolute;

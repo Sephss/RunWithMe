@@ -7,9 +7,7 @@
   grid-template-rows: auto 1fr;
   min-height: 100vh;
 }
-.icon {
-  color: white;
-}
+
 /* ─── SIDEBAR ─────────────────────────────────────────────────── */
 .sidebar {
   grid-row: 1 / -1;
