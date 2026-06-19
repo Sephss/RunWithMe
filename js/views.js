@@ -82,7 +82,7 @@ export function renderSidebar(activeView) {
   return `
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">❤️‍🔥</div>
+       
         <div class="sidebar-logo-text">RunWithMe <span>Every Step Together</span></div>
       </div>
       <div class="nav-section">
@@ -477,7 +477,7 @@ function buildLogView() {
       </div>
 
       <div id="log-error" class="form-error" style="margin-bottom:0.75rem"></div>
-      <button id="log-submit" class="btn btn-primary btn-full btn-lg"></button>
+      <button id="log-submit" class="btn btn-primary btn-full btn-lg">Save Activity</button>
     </div>
   </div>`;
 }
