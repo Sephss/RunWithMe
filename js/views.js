@@ -1,5 +1,13 @@
 // views.js — All dashboard view renderers
-
+import {
+  FaHome,
+  FaPlus,
+  FaClipboardList,
+  FaCalendar,
+  FaBullseye,
+  FaComments,
+  FaTrophy,
+} from "react-icons/fa";
 import { getCurrentUser, getUserData, logout } from "./auth.js";
 import { getCoupleData, getPartnerId, watchCouple } from "./couple.js";
 import {
@@ -70,13 +78,13 @@ export function renderSidebar(activeView) {
   const name = _myData?.name || user?.displayName || "You";
 
   const navItems = [
-    { id: "dashboard", icon: "🏠", label: "Dashboard" },
-    { id: "log", icon: "➕", label: "Log Activity" },
-    { id: "history", icon: "📋", label: "Activity Log" },
-    { id: "calendar", icon: "📅", label: "Calendar" },
-    { id: "goals", icon: "🎯", label: "Goals" },
-    { id: "messages", icon: "💬", label: "Messages" },
-    { id: "achievements", icon: "🏆", label: "Achievements" },
+    { id: "dashboard", icon: <FaHome />, label: "Dashboard" },
+    { id: "log", icon: <FaPlus />, label: "Log Activity" },
+    { id: "history", icon: <FaClipboardList />, label: "Activity Log" },
+    { id: "calendar", icon: <FaCalendar />, label: "Calendar" },
+    { id: "goals", icon: <FaBullseye />, label: "Goals" },
+    { id: "messages", icon: <FaComments />, label: "Messages" },
+    { id: "achievements", icon: <FaTrophy />, label: "Achievements" },
   ];
 
   return `
