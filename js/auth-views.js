@@ -97,7 +97,7 @@ export function renderRegister() {
           <div class="ring ring-1"></div>
           <div class="ring ring-2"></div>
           <div class="ring ring-3"></div>
-          <div class="ring-core">❤️‍🔥</div>
+          <div class="ring-core"></div>
         </div>
         <div class="auth-logo-name text-gradient">RunWithMe</div>
         <p class="auth-tagline">Every Step Together ❤️</p>

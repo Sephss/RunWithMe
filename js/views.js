@@ -3,23 +3,48 @@
 import { getCurrentUser, getUserData, logout } from "./auth.js";
 import { getCoupleData, getPartnerId, watchCouple } from "./couple.js";
 import {
-  getUserActivities, logActivity, computeStats, groupByDate,
-  ACTIVITY_TYPES, todayStr, calcPace
+  getUserActivities,
+  logActivity,
+  computeStats,
+  groupByDate,
+  ACTIVITY_TYPES,
+  todayStr,
+  calcPace,
 } from "./activities.js";
 import {
-  getDailyMotivation, sendMessage, watchMessages,
-  setWeeklyGoal, getWeeklyGoal, setSharedGoal,
-  ACHIEVEMENTS, checkAndUnlockAchievements, watchAchievements
+  getDailyMotivation,
+  sendMessage,
+  watchMessages,
+  setWeeklyGoal,
+  getWeeklyGoal,
+  setSharedGoal,
+  ACHIEVEMENTS,
+  checkAndUnlockAchievements,
+  watchAchievements,
 } from "./goals.js";
 import {
-  toast, openModal, setButtonLoading, fmtDate, fmtTime,
-  fmtRelative, initials, showPageLoader
+  toast,
+  openModal,
+  setButtonLoading,
+  fmtDate,
+  fmtTime,
+  fmtRelative,
+  initials,
+  showPageLoader,
 } from "./ui.js";
-import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import {
+  ref,
+  onValue,
+  update,
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { db } from "./firebase.js";
 
 // Shared state within session
-let _couple = null, _myActivities = [], _partnerActivities = [], _myData = null, _partnerData = null;
+let _couple = null,
+  _myActivities = [],
+  _partnerActivities = [],
+  _myData = null,
+  _partnerData = null;
 
 export async function loadAppState() {
   const user = getCurrentUser();
@@ -45,13 +70,13 @@ export function renderSidebar(activeView) {
   const name = _myData?.name || user?.displayName || "You";
 
   const navItems = [
-    { id: "dashboard",   icon: "🏠", label: "Dashboard"   },
-    { id: "log",         icon: "➕", label: "Log Activity" },
-    { id: "history",     icon: "📋", label: "Activity Log" },
-    { id: "calendar",    icon: "📅", label: "Calendar"     },
-    { id: "goals",       icon: "🎯", label: "Goals"        },
-    { id: "messages",    icon: "💬", label: "Messages"     },
-    { id: "achievements",icon: "🏆", label: "Achievements" },
+    { id: "dashboard", icon: "🏠", label: "Dashboard" },
+    { id: "log", icon: "➕", label: "Log Activity" },
+    { id: "history", icon: "📋", label: "Activity Log" },
+    { id: "calendar", icon: "📅", label: "Calendar" },
+    { id: "goals", icon: "🎯", label: "Goals" },
+    { id: "messages", icon: "💬", label: "Messages" },
+    { id: "achievements", icon: "🏆", label: "Achievements" },
   ];
 
   return `
@@ -62,10 +87,14 @@ export function renderSidebar(activeView) {
       </div>
       <div class="nav-section">
         <div class="nav-label">Menu</div>
-        ${navItems.map(n => `
+        ${navItems
+          .map(
+            (n) => `
           <div class="nav-item ${activeView === n.id ? "active" : ""}" data-view="${n.id}" role="button" tabindex="0">
             <i>${n.icon}</i> ${n.label}
-          </div>`).join("")}
+          </div>`,
+          )
+          .join("")}
       </div>
       <div class="sidebar-bottom">
         <div class="user-pill" id="logout-btn">
@@ -111,11 +140,13 @@ function bindShellEvents() {
     });
   });
 
-  document.getElementById("logout-btn")?.addEventListener("click", () => logout());
+  document
+    .getElementById("logout-btn")
+    ?.addEventListener("click", () => logout());
 
   const hamburger = document.getElementById("hamburger-btn");
-  const sidebar   = document.getElementById("sidebar");
-  const overlay   = document.getElementById("sidebar-overlay");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebar-overlay");
 
   hamburger?.addEventListener("click", () => {
     sidebar.classList.toggle("open");
@@ -145,20 +176,46 @@ export async function switchView(viewName) {
 
   const topbarTitle = document.querySelector(".topbar-left h2");
   const titles = {
-    dashboard: "Dashboard", log: "Log Activity", history: "Activity Log",
-    calendar: "Calendar", goals: "Goals", messages: "Messages", achievements: "Achievements"
+    dashboard: "Dashboard",
+    log: "Log Activity",
+    history: "Activity Log",
+    calendar: "Calendar",
+    goals: "Goals",
+    messages: "Messages",
+    achievements: "Achievements",
   };
   if (topbarTitle) topbarTitle.textContent = titles[viewName] || "";
 
   switch (viewName) {
-    case "dashboard":    container.innerHTML = await buildDashboardView(); bindDashboardEvents(); break;
-    case "log":          container.innerHTML = buildLogView();       bindLogEvents();       break;
-    case "history":      container.innerHTML = await buildHistoryView(); bindHistoryEvents(); break;
-    case "calendar":     container.innerHTML = await buildCalendarView(); break;
-    case "goals":        container.innerHTML = await buildGoalsView(); bindGoalEvents();     break;
-    case "messages":     container.innerHTML = buildMessagesView();  bindMessageEvents();   break;
-    case "achievements": container.innerHTML = await buildAchievementsView(); break;
-    default:             container.innerHTML = `<div class="view"><p>Not found.</p></div>`; break;
+    case "dashboard":
+      container.innerHTML = await buildDashboardView();
+      bindDashboardEvents();
+      break;
+    case "log":
+      container.innerHTML = buildLogView();
+      bindLogEvents();
+      break;
+    case "history":
+      container.innerHTML = await buildHistoryView();
+      bindHistoryEvents();
+      break;
+    case "calendar":
+      container.innerHTML = await buildCalendarView();
+      break;
+    case "goals":
+      container.innerHTML = await buildGoalsView();
+      bindGoalEvents();
+      break;
+    case "messages":
+      container.innerHTML = buildMessagesView();
+      bindMessageEvents();
+      break;
+    case "achievements":
+      container.innerHTML = await buildAchievementsView();
+      break;
+    default:
+      container.innerHTML = `<div class="view"><p>Not found.</p></div>`;
+      break;
   }
 }
 
@@ -168,19 +225,30 @@ export async function switchView(viewName) {
 async function buildDashboardView() {
   const user = getCurrentUser();
   const myStats = computeStats(_myActivities);
-  const partnerStats = _partnerActivities.length ? computeStats(_partnerActivities) : null;
+  const partnerStats = _partnerActivities.length
+    ? computeStats(_partnerActivities)
+    : null;
   const coupleDist = parseFloat(_couple?.totalDistance || 0);
-  const sharedGoal = _couple?.sharedGoal || { target: 500, title: "500 KM Together" };
-  const sharedPct  = Math.min(100, Math.round((coupleDist / sharedGoal.target) * 100));
+  const sharedGoal = _couple?.sharedGoal || {
+    target: 500,
+    title: "500 KM Together",
+  };
+  const sharedPct = Math.min(
+    100,
+    Math.round((coupleDist / sharedGoal.target) * 100),
+  );
   const myWeekGoal = _myData?.weeklyGoal || 20;
-  const myWeekPct  = Math.min(100, Math.round((parseFloat(myStats.weekDist) / myWeekGoal) * 100));
+  const myWeekPct = Math.min(
+    100,
+    Math.round((parseFloat(myStats.weekDist) / myWeekGoal) * 100),
+  );
   const recentActs = _myActivities.slice(0, 5);
   const partnerName = _partnerData?.name || "Partner";
 
   return `<div class="view">
     <!-- Motivation Hero -->
     <div class="dashboard-hero">
-      <div class="motivation-label">✨ Daily Motivation</div>
+      <div class="motivation-label">Daily Motivation</div>
       <div class="motivation-text">"${getDailyMotivation()}"</div>
     </div>
 
@@ -207,7 +275,7 @@ async function buildDashboardView() {
       <div class="goal-couple-avatars">
         <div class="goal-avatar">${initials(_myData?.name || "Me")}</div>
         <div class="goal-avatar">${initials(partnerName)}</div>
-        <span class="goal-heart">❤️</span>
+        <span class="goal-heart"></span>
         <span style="font-size:0.78rem;color:var(--text-muted)">Couple Goal</span>
       </div>
       <h3 style="margin-bottom:0.6rem">${sharedGoal.title}</h3>
@@ -222,7 +290,7 @@ async function buildDashboardView() {
         <div class="progress-fill" style="width:${sharedPct}%"></div>
       </div>
       <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.6rem">
-        ${(sharedGoal.target - coupleDist).toFixed(1)} KM left to reach your goal together 🎯
+        ${(sharedGoal.target - coupleDist).toFixed(1)} KM left to reach your goal together
       </p>
     </div>
 
@@ -231,10 +299,10 @@ async function buildDashboardView() {
         <!-- My Stats -->
         <h3 style="margin-bottom:0.9rem">My Stats</h3>
         <div class="stats-grid" style="margin-bottom:1.5rem">
-          ${statCard("Today", myStats.todayDist, "KM", "🏃")}
-          ${statCard("This Week", myStats.weekDist, "KM", "📅")}
-          ${statCard("This Month", myStats.monthDist, "KM", "🗓️")}
-          ${statCard("Week Goal", `${myWeekPct}%`, "", "🎯", `${myStats.weekDist}/${myWeekGoal} KM`)}
+          ${statCard("Today", myStats.todayDist, "KM", "")}
+          ${statCard("This Week", myStats.weekDist, "KM", "")}
+          ${statCard("This Month", myStats.monthDist, "KM", "")}
+          ${statCard("Week Goal", `${myWeekPct}%`, "", "", `${myStats.weekDist}/${myWeekGoal} KM`)}
         </div>
 
         <!-- Recent Activities -->
@@ -243,16 +311,20 @@ async function buildDashboardView() {
           <button class="btn btn-ghost btn-sm" data-view="history">View All →</button>
         </div>
         <div id="recent-acts">
-          ${recentActs.length
-            ? recentActs.map(activityCardHtml).join("")
-            : `<div class="empty-state"><div class="empty-icon">🏃</div><h3>No activities yet</h3><p>Log your first run to get started!</p></div>`}
+          ${
+            recentActs.length
+              ? recentActs.map(activityCardHtml).join("")
+              : `<div class="empty-state"><div class="empty-icon">🏃</div><h3>No activities yet</h3><p>Log your first run to get started!</p></div>`
+          }
         </div>
       </div>
 
       <!-- Right Column -->
       <div>
         <!-- Partner Stats -->
-        ${partnerStats ? `
+        ${
+          partnerStats
+            ? `
           <div class="partner-card" style="margin-bottom:1.25rem">
             <div class="partner-card-header">
               <div class="partner-avatar-sm">${initials(partnerName)}</div>
@@ -262,12 +334,14 @@ async function buildDashboardView() {
               </div>
             </div>
             <div class="stats-grid" style="grid-template-columns:1fr 1fr;gap:0.6rem">
-              ${statCard("Today", partnerStats.todayDist, "KM", "🏃", "", true)}
-              ${statCard("Week", partnerStats.weekDist, "KM", "📅", "", true)}
-              ${statCard("Month", partnerStats.monthDist, "KM", "🗓️", "", true)}
-              ${statCard("Streak", partnerStats.streak + " days", "", "🔥", "", true)}
+              ${statCard("Today", partnerStats.todayDist, "KM", "", "", true)}
+              ${statCard("Week", partnerStats.weekDist, "KM", "", "", true)}
+              ${statCard("Month", partnerStats.monthDist, "KM", "", "", true)}
+              ${statCard("Streak", partnerStats.streak + " days", "", "", "", true)}
             </div>
-          </div>` : ""}
+          </div>`
+            : ""
+        }
 
         <!-- Weekly Goal -->
         <div class="card" style="margin-bottom:1.25rem">
@@ -288,7 +362,7 @@ async function buildDashboardView() {
         <!-- Quick Log -->
         <div class="card card-glow">
           <h3 style="margin-bottom:0.85rem">Quick Log</h3>
-          <button class="btn btn-primary btn-full" data-view="log">➕ Log Activity</button>
+          <button class="btn btn-primary btn-full" data-view="log"> Log Activity</button>
         </div>
       </div>
     </div>
@@ -324,7 +398,9 @@ function bindDashboardEvents() {
     el.addEventListener("click", () => switchView(el.dataset.view));
   });
 
-  document.getElementById("edit-week-goal-btn")?.addEventListener("click", showWeeklyGoalModal);
+  document
+    .getElementById("edit-week-goal-btn")
+    ?.addEventListener("click", showWeeklyGoalModal);
 }
 
 async function showWeeklyGoalModal() {
@@ -340,14 +416,19 @@ async function showWeeklyGoalModal() {
 
   document.getElementById("save-wgoal").addEventListener("click", async () => {
     const val = parseFloat(document.getElementById("wgoal-input").value);
-    if (!val || val < 1) { toast("Enter a valid goal.", "error"); return; }
+    if (!val || val < 1) {
+      toast("Enter a valid goal.", "error");
+      return;
+    }
     try {
       await setWeeklyGoal(getCurrentUser().uid, _myData.coupleId, val);
       toast("Weekly goal updated! 🎯", "success");
       close();
       await loadAppState();
       switchView("dashboard");
-    } catch (e) { toast(e.message, "error"); }
+    } catch (e) {
+      toast(e.message, "error");
+    }
   });
 }
 
@@ -396,22 +477,22 @@ function buildLogView() {
       </div>
 
       <div id="log-error" class="form-error" style="margin-bottom:0.75rem"></div>
-      <button id="log-submit" class="btn btn-primary btn-full btn-lg">Save Activity 🏃</button>
+      <button id="log-submit" class="btn btn-primary btn-full btn-lg"></button>
     </div>
   </div>`;
 }
 
 function bindLogEvents() {
-  const distEl  = document.getElementById("act-dist");
-  const durEl   = document.getElementById("act-dur");
-  const paceEl  = document.getElementById("pace-preview");
+  const distEl = document.getElementById("act-dist");
+  const durEl = document.getElementById("act-dur");
+  const paceEl = document.getElementById("pace-preview");
   const submitBtn = document.getElementById("log-submit");
-  const errEl   = document.getElementById("log-error");
+  const errEl = document.getElementById("log-error");
 
   function updatePace() {
     const dist = parseFloat(distEl.value);
-    const dur  = parseInt(durEl.value);
-    paceEl.textContent = (dist > 0 && dur > 0) ? calcPace(dist, dur) : "— / KM";
+    const dur = parseInt(durEl.value);
+    paceEl.textContent = dist > 0 && dur > 0 ? calcPace(dist, dur) : "— / KM";
   }
 
   distEl.addEventListener("input", updatePace);
@@ -422,17 +503,32 @@ function bindLogEvents() {
     const date = document.getElementById("act-date").value;
     const type = document.getElementById("act-type").value;
     const dist = parseFloat(distEl.value);
-    const dur  = parseInt(durEl.value);
+    const dur = parseInt(durEl.value);
     const notes = document.getElementById("act-notes").value.trim();
 
-    if (!date) { errEl.textContent = "Please select a date."; return; }
-    if (!dist || dist <= 0) { errEl.textContent = "Enter a valid distance."; return; }
-    if (!dur  || dur  <= 0) { errEl.textContent = "Enter a valid duration."; return; }
+    if (!date) {
+      errEl.textContent = "Please select a date.";
+      return;
+    }
+    if (!dist || dist <= 0) {
+      errEl.textContent = "Enter a valid distance.";
+      return;
+    }
+    if (!dur || dur <= 0) {
+      errEl.textContent = "Enter a valid duration.";
+      return;
+    }
 
     setButtonLoading(submitBtn, true);
     try {
       const user = getCurrentUser();
-      const activity = await logActivity(user.uid, _myData.coupleId, { date, type, distance: dist, duration: dur, notes });
+      const activity = await logActivity(user.uid, _myData.coupleId, {
+        date,
+        type,
+        distance: dist,
+        duration: dur,
+        notes,
+      });
 
       // Check achievements
       await loadAppState();
@@ -440,15 +536,20 @@ function bindLogEvents() {
       const coupleDist = parseFloat(_couple?.totalDistance || 0);
       await checkAndUnlockAchievements(user.uid, _myData.coupleId, {
         totalActivities: _myActivities.length,
-        totalDist: parseFloat(_myActivities.reduce((s, a) => s + a.distance, 0)),
+        totalDist: parseFloat(
+          _myActivities.reduce((s, a) => s + a.distance, 0),
+        ),
         streak: myStats.streak,
         hasWalk: _myActivities.some((a) => a.type === "walk"),
-        hasJog:  _myActivities.some((a) => a.type === "jog"),
-        hasRun:  _myActivities.some((a) => a.type === "run"),
-        coupleDist
+        hasJog: _myActivities.some((a) => a.type === "jog"),
+        hasRun: _myActivities.some((a) => a.type === "run"),
+        coupleDist,
       });
 
-      toast(`${ACTIVITY_TYPES[type].icon} ${dist} KM logged! Great job!`, "success");
+      toast(
+        `${ACTIVITY_TYPES[type].icon} ${dist} KM logged! Great job!`,
+        "success",
+      );
       switchView("dashboard");
     } catch (e) {
       errEl.textContent = e.message;
@@ -494,7 +595,9 @@ function bindHistoryEvents() {
 
   document.querySelectorAll("#hist-tabs .tab").forEach((t) => {
     t.addEventListener("click", () => {
-      document.querySelectorAll("#hist-tabs .tab").forEach((x) => x.classList.remove("active"));
+      document
+        .querySelectorAll("#hist-tabs .tab")
+        .forEach((x) => x.classList.remove("active"));
       t.classList.add("active");
       currentWho = t.dataset.who;
       renderHistList(currentWho);
@@ -502,7 +605,9 @@ function bindHistoryEvents() {
   });
 
   ["hist-search", "hist-filter", "hist-sort"].forEach((id) => {
-    document.getElementById(id)?.addEventListener("input", () => renderHistList(currentWho));
+    document
+      .getElementById(id)
+      ?.addEventListener("input", () => renderHistList(currentWho));
   });
 }
 
@@ -510,13 +615,21 @@ function renderHistList(who) {
   const listEl = document.getElementById("hist-list");
   if (!listEl) return;
   let acts = who === "me" ? [..._myActivities] : [..._partnerActivities];
-  const search = document.getElementById("hist-search")?.value.toLowerCase() || "";
+  const search =
+    document.getElementById("hist-search")?.value.toLowerCase() || "";
   const filter = document.getElementById("hist-filter")?.value || "all";
-  const sort   = document.getElementById("hist-sort")?.value || "newest";
+  const sort = document.getElementById("hist-sort")?.value || "newest";
 
   if (filter !== "all") acts = acts.filter((a) => a.type === filter);
-  if (search) acts = acts.filter((a) => (a.notes || "").toLowerCase().includes(search) || a.type.includes(search));
-  acts.sort((a, b) => sort === "newest" ? b.createdAt - a.createdAt : a.createdAt - b.createdAt);
+  if (search)
+    acts = acts.filter(
+      (a) =>
+        (a.notes || "").toLowerCase().includes(search) ||
+        a.type.includes(search),
+    );
+  acts.sort((a, b) =>
+    sort === "newest" ? b.createdAt - a.createdAt : a.createdAt - b.createdAt,
+  );
 
   if (!acts.length) {
     listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No activities found</h3><p>Try a different filter or log a new activity.</p></div>`;
@@ -540,24 +653,28 @@ async function buildCalendarView() {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = todayStr();
-    const monthName = new Date(year, month).toLocaleString("default", { month: "long", year: "numeric" });
+    const monthName = new Date(year, month).toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
 
-    const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(
-      (d) => `<div class="cal-header">${d}</div>`
-    ).join("");
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+      .map((d) => `<div class="cal-header">${d}</div>`)
+      .join("");
 
     let cells = "";
-    for (let i = 0; i < firstDay; i++) cells += `<div class="cal-day empty faded"></div>`;
+    for (let i = 0; i < firstDay; i++)
+      cells += `<div class="cal-day empty faded"></div>`;
     for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-      const isMy  = myDates.has(dateStr);
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const isMy = myDates.has(dateStr);
       const isPar = partnerDates.has(dateStr);
       const isToday = dateStr === today;
       let cls = "cal-day";
       if (isMy && isPar) cls += " both";
-      else if (isMy)  cls += " mine";
+      else if (isMy) cls += " mine";
       else if (isPar) cls += " partner";
-      if (isToday)    cls += " today";
+      if (isToday) cls += " today";
       cells += `<div class="${cls}" data-date="${dateStr}" title="${dateStr}">${d}</div>`;
     }
 
@@ -593,15 +710,33 @@ async function buildCalendarView() {
 // ═══════════════════════════════════════════════════════════════════
 async function buildGoalsView() {
   const user = getCurrentUser();
-  const myStats  = computeStats(_myActivities);
-  const myWGoal  = _myData?.weeklyGoal || 20;
-  const myWPct   = Math.min(100, Math.round((parseFloat(myStats.weekDist) / myWGoal) * 100));
-  const partnerStats = _partnerActivities.length ? computeStats(_partnerActivities) : null;
-  const partnerWGoal = _partnerData ? (await getUserData(getPartnerId(_couple, user.uid)))?.weeklyGoal || 20 : 20;
-  const partnerWPct  = partnerStats ? Math.min(100, Math.round((parseFloat(partnerStats.weekDist) / partnerWGoal) * 100)) : 0;
-  const coupleDist   = parseFloat(_couple?.totalDistance || 0);
-  const sharedGoal   = _couple?.sharedGoal || { target: 500, title: "500 KM Together" };
-  const sharedPct    = Math.min(100, Math.round((coupleDist / sharedGoal.target) * 100));
+  const myStats = computeStats(_myActivities);
+  const myWGoal = _myData?.weeklyGoal || 20;
+  const myWPct = Math.min(
+    100,
+    Math.round((parseFloat(myStats.weekDist) / myWGoal) * 100),
+  );
+  const partnerStats = _partnerActivities.length
+    ? computeStats(_partnerActivities)
+    : null;
+  const partnerWGoal = _partnerData
+    ? (await getUserData(getPartnerId(_couple, user.uid)))?.weeklyGoal || 20
+    : 20;
+  const partnerWPct = partnerStats
+    ? Math.min(
+        100,
+        Math.round((parseFloat(partnerStats.weekDist) / partnerWGoal) * 100),
+      )
+    : 0;
+  const coupleDist = parseFloat(_couple?.totalDistance || 0);
+  const sharedGoal = _couple?.sharedGoal || {
+    target: 500,
+    title: "500 KM Together",
+  };
+  const sharedPct = Math.min(
+    100,
+    Math.round((coupleDist / sharedGoal.target) * 100),
+  );
 
   return `<div class="view">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem" class="goals-top-grid">
@@ -625,7 +760,9 @@ async function buildGoalsView() {
       </div>
 
       <!-- Partner Weekly Goal -->
-      ${partnerStats ? `<div class="card partner-card">
+      ${
+        partnerStats
+          ? `<div class="card partner-card">
         <div style="margin-bottom:1rem">
           <h3>${_partnerData?.name || "Partner"}'s Weekly Goal</h3>
           <p style="font-size:0.8rem">Their progress this week</p>
@@ -638,7 +775,9 @@ async function buildGoalsView() {
           <div class="progress-fill" style="width:${partnerWPct}%"></div>
         </div>
         <p style="font-size:0.78rem;color:var(--text-muted)">${partnerWPct}% complete</p>
-      </div>` : `<div class="card"><div class="empty-state"><div class="empty-icon">👥</div><h3>Waiting for partner</h3></div></div>`}
+      </div>`
+          : `<div class="card"><div class="empty-state"><div class="empty-icon">👥</div><h3>Waiting for partner</h3></div></div>`
+      }
     </div>
 
     <!-- Shared Goal -->
@@ -666,8 +805,12 @@ async function buildGoalsView() {
 }
 
 function bindGoalEvents() {
-  document.getElementById("edit-my-wgoal")?.addEventListener("click", showWeeklyGoalModal);
-  document.getElementById("edit-shared-goal")?.addEventListener("click", showSharedGoalModal);
+  document
+    .getElementById("edit-my-wgoal")
+    ?.addEventListener("click", showWeeklyGoalModal);
+  document
+    .getElementById("edit-shared-goal")
+    ?.addEventListener("click", showSharedGoalModal);
 }
 
 async function showSharedGoalModal() {
@@ -686,15 +829,20 @@ async function showSharedGoalModal() {
     <button id="save-sg" class="btn btn-primary btn-full">Save Couple Goal</button>`);
 
   document.getElementById("save-sg").addEventListener("click", async () => {
-    const title  = document.getElementById("sg-title").value.trim();
+    const title = document.getElementById("sg-title").value.trim();
     const target = parseFloat(document.getElementById("sg-target").value);
-    if (!title || !target || target < 1) { toast("Please fill in all fields.", "error"); return; }
+    if (!title || !target || target < 1) {
+      toast("Please fill in all fields.", "error");
+      return;
+    }
     try {
       await setSharedGoal(_myData.coupleId, target, title);
       toast("Couple goal updated! 💑", "success");
       close();
       switchView("goals");
-    } catch (e) { toast(e.message, "error"); }
+    } catch (e) {
+      toast(e.message, "error");
+    }
   });
 }
 
@@ -704,15 +852,15 @@ async function showSharedGoalModal() {
 function buildMessagesView() {
   return `<div class="view" style="max-width:620px">
     <div class="card" style="margin-bottom:1.25rem">
-      <h3 style="margin-bottom:0.85rem">Send Encouragement 💬</h3>
+      <h3 style="margin-bottom:0.85rem">Send Encouragement</h3>
       <div class="form-group" style="margin-bottom:0.75rem">
         <textarea id="msg-input" class="form-input" rows="2" maxlength="150"
-          placeholder="Great job today ❤️ Let's hit our goal tomorrow 💪" style="resize:none"></textarea>
+          placeholder="Write your message..." style="resize:none"></textarea>
         <div style="display:flex;justify-content:flex-end;margin-top:0.25rem">
           <span id="msg-chars" style="font-size:0.72rem;color:var(--text-dim)">0 / 150</span>
         </div>
       </div>
-      <button id="send-msg-btn" class="btn btn-primary">Send Message ❤️</button>
+      <button id="send-msg-btn" class="btn btn-primary">Send Message</button>
     </div>
     <h3 style="margin-bottom:0.85rem">Messages</h3>
     <div id="messages-list">
@@ -722,8 +870,8 @@ function buildMessagesView() {
 }
 
 function bindMessageEvents() {
-  const input   = document.getElementById("msg-input");
-  const charEl  = document.getElementById("msg-chars");
+  const input = document.getElementById("msg-input");
+  const charEl = document.getElementById("msg-chars");
   const sendBtn = document.getElementById("send-msg-btn");
 
   input?.addEventListener("input", () => {
@@ -732,15 +880,25 @@ function bindMessageEvents() {
 
   sendBtn?.addEventListener("click", async () => {
     const text = input?.value.trim();
-    if (!text) { toast("Write something encouraging!", "error"); return; }
+    if (!text) {
+      toast("Write something encouraging!", "error");
+      return;
+    }
     setButtonLoading(sendBtn, true);
     try {
       const user = getCurrentUser();
-      await sendMessage(_myData.coupleId, user.uid, _myData?.name || "You", text);
+      await sendMessage(
+        _myData.coupleId,
+        user.uid,
+        _myData?.name || "You",
+        text,
+      );
       input.value = "";
       charEl.textContent = "0 / 150";
       toast("Message sent! ❤️", "success");
-    } catch (e) { toast(e.message, "error"); }
+    } catch (e) {
+      toast(e.message, "error");
+    }
     setButtonLoading(sendBtn, false);
   });
 
@@ -753,14 +911,18 @@ function bindMessageEvents() {
       return;
     }
     const user = getCurrentUser();
-    listEl.innerHTML = msgs.map((m) => `
+    listEl.innerHTML = msgs
+      .map(
+        (m) => `
       <div class="message-bubble ${m.uid === user.uid ? "mine" : ""}" style="margin-bottom:0.75rem">
         <div class="message-meta">
           <span style="font-weight:600;color:${m.uid === user.uid ? "var(--violet-light)" : "var(--pink-light)"}">${m.name}</span>
           <span>${fmtRelative(m.sentAt)}</span>
         </div>
         <div class="message-text">${m.text}</div>
-      </div>`).join("");
+      </div>`,
+      )
+      .join("");
   });
 }
 
@@ -772,7 +934,7 @@ async function buildAchievementsView() {
   return new Promise((resolve) => {
     watchAchievements(user.uid, _myData.coupleId, (unlocked) => {
       const html = `<div class="view">
-        <h2 style="margin-bottom:0.4rem">Achievements 🏆</h2>
+        <h2 style="margin-bottom:0.4rem">Achievements </h2>
         <p style="margin-bottom:1.5rem;font-size:0.88rem">${Object.keys(unlocked).length} / ${ACHIEVEMENTS.length} unlocked</p>
         <div class="achievements-grid">
           ${ACHIEVEMENTS.map((ach) => {
