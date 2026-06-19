@@ -422,7 +422,7 @@ async function showWeeklyGoalModal() {
     }
     try {
       await setWeeklyGoal(getCurrentUser().uid, _myData.coupleId, val);
-      toast("Weekly goal updated! 🎯", "success");
+      toast("Weekly goal updated!", "success");
       close();
       await loadAppState();
       switchView("dashboard");
@@ -837,7 +837,7 @@ async function showSharedGoalModal() {
     }
     try {
       await setSharedGoal(_myData.coupleId, target, title);
-      toast("Couple goal updated! 💑", "success");
+      toast("Couple goal updated!", "success");
       close();
       switchView("goals");
     } catch (e) {
@@ -895,7 +895,7 @@ function bindMessageEvents() {
       );
       input.value = "";
       charEl.textContent = "0 / 150";
-      toast("Message sent! ❤️", "success");
+      toast("Message sent!", "success");
     } catch (e) {
       toast(e.message, "error");
     }

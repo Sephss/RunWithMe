@@ -12,7 +12,7 @@ async function boot() {
   document.getElementById("app").innerHTML = `
     <div class="page-loader">
       <div style="text-align:center">
-        <div style="font-size:2.5rem;margin-bottom:0.75rem;animation:corePulse 2s ease-in-out infinite">❤️‍🔥</div>
+        <div style="font-size:2.5rem;margin-bottom:0.75rem;animation:corePulse 2s ease-in-out infinite"></div>
         <div class="text-gradient" style="font-size:1.5rem;font-weight:800;margin-bottom:0.35rem">RunWithMe</div>
         <p style="font-size:0.85rem;color:var(--text-muted)">Every Step Together ❤️</p>
       </div>
